@@ -6,8 +6,8 @@ import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 
 const todoRepository = new TodoRepository;
 
-export async function getAllTodos(): Promise<TodoItem[]> {
-    return todoRepository.getAllTodos()
+export async function getAllTodos(userId: string): Promise<TodoItem[]> {
+    return todoRepository.getAllTodos(userId)
 }
 
 export async function createTodo(request: CreateTodoRequest, userId: string): Promise<TodoItem> {
@@ -17,17 +17,16 @@ export async function createTodo(request: CreateTodoRequest, userId: string): Pr
     return await todoRepository.createTodo({
         todoId: itemId,
         done: false,
-        attachmentUrl: '',
         userId,
         createdAt,
         ...request
       })
 }
 
-export async function updateTodo(todoId: string, request: UpdateTodoRequest): Promise<null> {
-    return todoRepository.updateTodo(todoId, request as TodoItem)
+export async function updateTodo(userId: string, todoId: string, request: UpdateTodoRequest): Promise<null> {
+    return todoRepository.updateTodo(userId, todoId, request as TodoItem)
 }
 
-export async function deleteTodo(todoId: string): Promise<TodoItem[]> {
-    return todoRepository.deleteTodo(todoId)
+export async function deleteTodo(userId: string, todoId: string): Promise<TodoItem[]> {
+    return todoRepository.deleteTodo(userId, todoId)
 }

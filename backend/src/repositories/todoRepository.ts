@@ -1,18 +1,30 @@
 import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import { TodoItem } from '../models/TodoItem';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
+import { createLogger } from '../utils/logger';
+
+export const XAWS = AWSXRay.captureAWS(AWS)
+const logger = createLogger('todoRepository');
 
 export class TodoRepository {
     constructor(
-        private readonly dynamoDb: DocumentClient = new AWS.DynamoDB.DocumentClient,
-        private readonly todosTable = process.env.TODOS_TABLE) {
+        private readonly dynamoDb: DocumentClient = new XAWS.DynamoDB.DocumentClient,
+        private readonly todosTable = process.env.TODOS_TABLE,
+        private readonly userIdIndex = process.env.USER_ID_INDEX
+    ) {
     }
 
-    async getAllTodos(): Promise<TodoItem[]> {
-        console.log('Getting all todos')
+    async getAllTodos(userId: string): Promise<TodoItem[]> {
+        logger.info(`Getting all todos for user: ${userId}`)
         // TODO: Get all TODO items for a current user
-        const result = await this.dynamoDb.scan({
-            TableName: this.todosTable
+        const result = await this.dynamoDb.query({
+            TableName: this.todosTable,
+            IndexName: this.userIdIndex,
+            KeyConditionExpression: "userId = :userId",
+            ExpressionAttributeValues: {
+                ":userId": userId
+            }
         }).promise()
 
         const items = result.Items
@@ -31,31 +43,36 @@ export class TodoRepository {
         return todoItem
     }
 
-    async updateTodo(todoId: string, todoItem: TodoItem): Promise<null> {
+    async updateTodo(userId: string, todoId: string, todoItem: TodoItem): Promise<null> {
         console.log('Updating a Todo')
 
         await this.dynamoDb.update({
             TableName: this.todosTable,
             Key: {
+                userId,
                 todoId
             },
-            UpdateExpression: "set info.name = :n, info.dueDate = :d, info.done = :c",
+            UpdateExpression: "set #n = :n, dueDate = :d, done = :c",
             ExpressionAttributeValues:{
                 ":n": todoItem.name,
                 ":d": todoItem.dueDate,
                 ":c": todoItem.done
+            },
+            ExpressionAttributeNames:{
+                "#n": "name"
             }
           }).promise()
 
         return undefined
     }
 
-    async deleteTodo(todoId: string): Promise<null> {
+    async deleteTodo(userId: string, todoId: string): Promise<null> {
         console.log('Deleting a Todo')
 
         await this.dynamoDb.delete({
             TableName: this.todosTable,
             Key: {
+                userId,
                 todoId
             }
         }).promise();
