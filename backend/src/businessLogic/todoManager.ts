@@ -6,8 +6,8 @@ import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 
 const todoRepository = new TodoRepository;
 
-export async function getAllTodos(): Promise<TodoItem[]> {
-    return todoRepository.getAllTodos()
+export async function getAllTodos(userId: string): Promise<TodoItem[]> {
+    return todoRepository.getAllTodos(userId)
 }
 
 export async function createTodo(request: CreateTodoRequest, userId: string): Promise<TodoItem> {
@@ -17,7 +17,6 @@ export async function createTodo(request: CreateTodoRequest, userId: string): Pr
     return await todoRepository.createTodo({
         todoId: itemId,
         done: false,
-        attachmentUrl: '',
         userId,
         createdAt,
         ...request

@@ -6,11 +6,7 @@ import { createTodo } from '../../businessLogic/todoManager';
 import { getUserId } from '../utils';
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const authorization = event.headers.authorization
-  const split = authorization.split(' ');
-  const jwtToken = split[1];
   const newTodo: CreateTodoRequest = JSON.parse(event.body)
-
   const todo = await createTodo(newTodo, getUserId(event))
 
   return {
