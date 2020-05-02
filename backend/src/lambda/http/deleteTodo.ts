@@ -6,5 +6,11 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const todoId = event.pathParameters.todoId
     await deleteTodo(todoId)
   
-    return undefined
+    return {
+        statusCode: 204,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        },
+        body: ''
+    };
 }
