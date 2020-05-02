@@ -1,6 +1,8 @@
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
+import { updateTodo } from '../../businessLogic/todoManager'
+import { getUserId } from '../utils'
 
 const s3 = new AWS.S3({
     signatureVersion: 'v4'
@@ -12,17 +14,19 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const todoId = event.pathParameters.todoId
 
   // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
-  const url = s3.getSignedUrl('putObject', {
+  
+  const uploadUrl = s3.getSignedUrl('putObject', {
       Bucket: bucketName,
       Key: todoId,
       Expires: urlExpiration
   })
 
+  await updateTodo(getUserId(event), todoId, {attachmentUrl: })
   return {
       statusCode: 201,
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({url})
+      body: JSON.stringify({uploadUrl})
   };
 }

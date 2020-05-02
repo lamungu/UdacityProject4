@@ -31,6 +31,8 @@ provider:
         - dynamodb:Scan
         - dynamodb:Query
         - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
         - dynamodb:GetItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     - Effect: Allow

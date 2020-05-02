@@ -23,10 +23,10 @@ export async function createTodo(request: CreateTodoRequest, userId: string): Pr
       })
 }
 
-export async function updateTodo(todoId: string, request: UpdateTodoRequest): Promise<null> {
-    return todoRepository.updateTodo(todoId, request as TodoItem)
+export async function updateTodo(userId: string, todoId: string, request: UpdateTodoRequest): Promise<null> {
+    return todoRepository.updateTodo(userId, todoId, request as TodoItem)
 }
 
-export async function deleteTodo(todoId: string): Promise<TodoItem[]> {
-    return todoRepository.deleteTodo(todoId)
+export async function deleteTodo(userId: string, todoId: string): Promise<TodoItem[]> {
+    return todoRepository.deleteTodo(userId, todoId)
 }
