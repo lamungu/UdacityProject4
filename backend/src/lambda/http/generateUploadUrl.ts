@@ -1,10 +1,11 @@
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
-import { updateTodo } from '../../businessLogic/todoManager'
-import { getUserId } from '../utils'
 
-const s3 = new AWS.S3({
+const XAWS = AWSXRay.captureAWS(AWS);
+
+const s3 = new XAWS.S3({
     signatureVersion: 'v4'
 })
 const bucketName = process.env.ATTACHMENTS_S3_BUCKET
@@ -21,7 +22,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       Expires: urlExpiration
   })
 
-  await updateTodo(getUserId(event), todoId, {attachmentUrl: })
   return {
       statusCode: 201,
       headers: {
