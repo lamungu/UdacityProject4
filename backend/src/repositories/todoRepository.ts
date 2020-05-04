@@ -43,6 +43,23 @@ export class TodoRepository {
         return todoItem
     }
 
+    async updateTodoAttachmentUrl(userId: string, todoId: string, attachmentUrl: string): Promise<null> {
+        console.log('Updating a Todo\'s attachment url')
+
+        await this.dynamoDb.update({
+            TableName: this.todosTable,
+            Key: {
+                userId,
+                todoId
+            },
+            UpdateExpression: "set attachmentUrl = :a",
+            ExpressionAttributeValues:{
+                ":a": attachmentUrl,
+            },
+          }).promise()
+
+        return undefined
+    }
     async updateTodo(userId: string, todoId: string, todoItem: TodoItem): Promise<null> {
         console.log('Updating a Todo')
 
